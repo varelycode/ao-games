@@ -37,6 +37,8 @@ class Board:
         temp_mask = player_mask & (player_mask >> 1)
         if (temp_mask & (temp_mask >> 2)):
             return True
+        
+        return False
 
     def play_column(self, col: int):
         mask_bitboard_new = self.mask_bitboard | (self.mask_bitboard + (1 << (col * WIDTH)))
