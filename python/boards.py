@@ -1,4 +1,11 @@
 class Board:
+    HEIGHT = 6
+    WIDTH = 7
+
+    def __init__(self, board, player_num):
+        self.player_num = player_num
+        self.num_moves_played = 0
+        self.player_bitboard, self.mask_bitboard = self.get_bit_board_alt(board)
 
     def is_column_free(self, mask: '', col: int) -> bool:
         mask_int = int(mask, 2)
@@ -12,12 +19,9 @@ class Board:
 
     # def win_condition(self, ):
 
-    def get_bit_board_alt(self, board, player_num: int) -> str:
+    def get_bit_board_alt(self, board) -> str:
         player_bitboard = ''
         mask_bitboard = ''
-        """ brd = list(zip(*board)) #get cols
-        brd.reverse()
-        print(brd) """
         for col in range(6, -1, -1):
             mask_bitboard += '0'
             player_bitboard += '0'
@@ -28,12 +32,10 @@ class Board:
                     player_bitboard += '0'
                 else:
                     mask_bitboard += '1'
-                    if this_cell == player_num:
+                    if this_cell == self.player_num:
                         player_bitboard += '1'
                     else:
                         player_bitboard += '0'
-        print(int(mask_bitboard, 2))
-        print(int(player_bitboard, 2))
         return player_bitboard, mask_bitboard
 
     def get_bit_board(self, board: [[]], player_num: int) -> str:
