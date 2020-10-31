@@ -12,6 +12,30 @@ class Board:
 
     # def win_condition(self, ):
 
+    def get_bit_board_alt(self, board, player_num: int) -> str:
+        player_bitboard = ''
+        mask_bitboard = ''
+        """ brd = list(zip(*board)) #get cols
+        brd.reverse()
+        print(brd) """
+        for col in range(6, -1, -1):
+            mask_bitboard += '0'
+            player_bitboard += '0'
+            for row in range(6):
+                this_cell = board[row][col]
+                if this_cell == 0:
+                    mask_bitboard += '0'
+                    player_bitboard += '0'
+                else:
+                    mask_bitboard += '1'
+                    if this_cell == player_num:
+                        player_bitboard += '1'
+                    else:
+                        player_bitboard += '0'
+        print(int(mask_bitboard, 2))
+        print(int(player_bitboard, 2))
+        return player_bitboard, mask_bitboard
+
     def get_bit_board(self, board: [[]], player_num: int) -> str:
         #Input board: [[]] - Takes, player and board list contains current state of board
         #Output mask: '', player: ''Returns Mask and position of current player
@@ -20,6 +44,7 @@ class Board:
         brd = list(zip(*board)) #get cols
         print("brd: ", brd)
         for row in brd: #iterate through cols
+            print(row)
             for pos in row: #access each item in cols
                 if pos == 0:
                     mask += '0'
@@ -31,7 +56,15 @@ class Board:
                     player += '1'
                 else:
                     player += '0'
-        print("mask: ", mask)
+                
+                mask += '0'
+                player += '0'
+        """ print("mask:")
+        for i in range(6, -1, -1):
+            for j in range(7):
+                print(mask[i + (j * 7)], end='')
+            print('\n', end='') """
+        print('\n', end='')
         print("player: ", player)
         print(self.is_column_free(mask, 0))
 
