@@ -12,7 +12,7 @@ class Board:
 
     # def win_condition(self, ):
 
-    def get_bit_board(self, board: [[]]) -> str:
+    def get_bit_board(self, board: [[]], player_num: int) -> str:
         #Input board: [[]] - Takes, player and board list contains current state of board
         #Output mask: '', player: ''Returns Mask and position of current player
         player = ''
@@ -24,11 +24,12 @@ class Board:
                 if pos == 0:
                     mask += '0'
                     player += '0'
-                if pos == 1 or pos == 2:
+                else:
                     mask += '1'
-                if pos == 2:
+
+                if pos == player_num:
                     player += '1'
-                if pos == 1:
+                else:
                     player += '0'
         print("mask: ", mask)
         print("player: ", player)
