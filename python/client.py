@@ -12,7 +12,7 @@ def get_move(player, board):
 def prepare_response(move):
   response = '{}\n'.format(json.dumps(move))
   print('sending {!r}'.format(response))
-  return response
+  return response.encode(encoding='UTF-8')
 
 if __name__ == "__main__":
   port = int(sys.argv[1]) if (len(sys.argv) > 1 and sys.argv[1]) else 1337
@@ -37,3 +37,4 @@ if __name__ == "__main__":
       sock.sendall(response)
   finally:
     sock.close()
+
