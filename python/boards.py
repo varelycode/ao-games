@@ -20,8 +20,8 @@ class Board:
         brd = list(zip(*board)) #get cols
         print("brd: ", brd)
         for row in brd: #iterate through cols
-            for i, pos in enumerate(row): #access each item in cols
-                if  == 0:
+            for pos in row: #access each item in cols
+                if pos == 0:
                     mask += '0'
                     player += '0'
                 else:
@@ -43,5 +43,3 @@ class Board:
     # def get_opponent(self, mask, current) -> str:
     #
     #     return mask xor
-
-
