@@ -3,6 +3,7 @@
 import sys
 import json
 import socket
+from gameplay import *
 
 def get_move(player, board):
   # TODO determine valid moves
@@ -30,7 +31,9 @@ if __name__ == "__main__":
       board = json_data['board']
       maxTurnTime = json_data['maxTurnTime']
       player = json_data['player']
+      position, m = board_to_bitstring(board, player)
       print(player, maxTurnTime, board)
+      
 
       move = get_move(player, board)
       response = prepare_response(move)
