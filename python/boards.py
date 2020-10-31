@@ -17,6 +17,31 @@ class Board:
         print(format(top_mask, 'b'))
         return top_mask
 
+    def is_winning_position(self, player_mask) -> bool:
+        # 4 across
+        temp_mask = player_mask & (player_mask >> (HEIGHT + 1))
+        if (temp_mask & (temp_mask >> (2 * (HEIGHT + 1)))):
+            return True
+        
+        # 4 diagonal (1)
+        temp_mask = player_mask & (player_mask >> HEIGHT)
+        if (temp_mask & (temp_mask >> (2 * HEIGHT))):
+            return True
+
+        # 4 diagonal (2)
+        temp_mask = player_mask & (player_mask >> (HEIGHT + 2))
+        if (temp_mask & (temp_mask >> (2 * (HEIGHT + 2)))):
+            return True
+        
+        # 4 vertical
+        temp_mask = player_mask & (player_mask >> 1)
+        if (temp_mask & (temp_mask >> 2)):
+            return True
+
+    def play_column(self, col: int):
+        mask_bitboard_new = self.mask_bitboard | (self.mask_bitboard + (1 << (col * WIDTH)))
+        player_bitboard_new = self.player_bitboard ^ self.mask_bitboard
+        return player_bitboard_new, mask_bitboard_new
     # def win_condition(self, ):
 
     def get_bit_board_alt(self, board) -> str:
