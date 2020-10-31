@@ -2,6 +2,9 @@ import math
 import functools
 from copy import deepcopy
 
+HEIGHT = 6
+WIDTH = 7
+
 class Play:
     mask = '' # Bit mask containing positions of non-empty cells
     num_moves_played = 0 # Number of moves played since beginning of game
@@ -13,7 +16,7 @@ class Play:
         return ((mask_int & top_mask) == 0)
 
     def get_top_mask(self, column: int) -> int:
-        top_mask = (1 << 5)  << column * 7
+        top_mask = (1 << (HEIGHT - 1))  << (column * WIDTH)
         # print(format(top_mask, 'b'))
         return top_mask
 
@@ -24,16 +27,16 @@ class Play:
         # Include function to get valid plays 
         # Include check here for if depth is 0 or if it's a game-terminating depth
 
-        if self.num_moves_played == 42: # Case of a draw
+        if self.num_moves_played == WIDTH * HEIGHT: # Case of a draw
             return 0
         
-        for c in range(6):
+        for c in range(WIDTH):
             if self.is_column_free(c):  # and is winning move
-                return (43 - self.num_moves_played) / 2
+                return ((WIDTH * HEIGHT + 1) - self.num_moves_played) / 2
 
-        score = -42
+        score = -1 * WIDTH * HEIGHT
 
-        for c in range(6):
+        for c in range(WIDTH):
             # make deep copy of current board
             # play by placing piece in column c
             # temp_score = __score(temp_board)

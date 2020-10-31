@@ -31,7 +31,6 @@ if __name__ == "__main__":
       board = json_data['board']
       maxTurnTime = json_data['maxTurnTime']
       player = json_data['player']
-      position, m = board_to_bitstring(board, player)
       print(player, maxTurnTime, board)
       
 
