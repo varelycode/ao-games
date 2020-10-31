@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 class Board:
     HEIGHT = 6
     WIDTH = 7
@@ -7,17 +9,24 @@ class Board:
         self.num_moves_played = 0
         self.player_bitboard, self.mask_bitboard = self.get_bit_board_alt(board)
 
-    def is_column_free(self, mask: '', col: int) -> bool:
-        mask_int = int(mask, 2)
-        top_mask = self.get_top_mask(col)
+    def is_column_free(self, col: int) -> bool:
+        mask_int = int(self.mask_bitboard, 2)
+        top_mask = (1 << (self.HEIGHT - 1)) << col * (self.HEIGHT + 1)
         return ((mask_int & top_mask) == 0)
 
     def get_top_mask(self, column: int) -> int:
         top_mask = (1 << 5) << column * 7
-        print(format(top_mask, 'b'))
+        #print(format(top_mask, 'b'))
         return top_mask
 
-    def is_winning_position(self, player_mask) -> bool:
+    def is_winning_move(self, col: int) -> bool:
+        p = deepcopy(self.player_bitboard)
+        col_mask = (1 << self.HEIGHT-1) << col * (self.HEIGHT+1)
+        bottom_mask = 1 << (col * WIDTH)
+        p = p | (self.mask_bitboard + bottom_mask) & col_mask
+        return (self.connect4_check(p))
+
+    def connect4_check(self, player_mask) -> bool:
         # 4 across
         temp_mask = player_mask & (player_mask >> (HEIGHT + 1))
         if (temp_mask & (temp_mask >> (2 * (HEIGHT + 1)))):
@@ -41,9 +50,9 @@ class Board:
         return False
 
     def play_column(self, col: int):
-        mask_bitboard_new = self.mask_bitboard | (self.mask_bitboard + (1 << (col * WIDTH)))
-        player_bitboard_new = self.player_bitboard ^ self.mask_bitboard
-        return player_bitboard_new, mask_bitboard_new
+        self.player_bitboard = self.player_bitboard ^ self.mask_bitboard
+        self.mask_bitboard = self.mask_bitboard | (self.mask_bitboard + (1 << (col * WIDTH)))
+        self.num_moves_played += 1
     # def win_condition(self, ):
 
     def get_bit_board_alt(self, board) -> str:
