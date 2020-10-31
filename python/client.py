@@ -5,6 +5,8 @@ import json
 import socket
 import boards
 import moves
+from gameplay import *
+
 
 def get_move(player, board):
   # TODO determine valid moves
