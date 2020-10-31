@@ -40,7 +40,7 @@ if __name__ == "__main__":
       maxTurnTime = json_data['maxTurnTime']
       player = json_data['player']
       obj = boards.Board()
-      mask, current = obj.get_bit_board(TEST_1)
+      mask, current = obj.get_bit_board_alt(TEST_1)
       print(player, maxTurnTime, board)
       move = get_move(player, board)
       response = prepare_response(move)
