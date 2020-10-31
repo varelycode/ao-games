@@ -6,6 +6,10 @@ import socket
 import boards
 import moves
 
+# 2 - red; 1- yellow (us)
+TEST_1 = [[0,0,0,0,0,0,0], [0,0,0,2,0,0,0], [0,0,1,1,0,0,0], [0,0,2,1,0,0,0], [0,0,2,2,1,0,0], [0,0,2,1,1,2,0]]
+
+
 def get_move(player, board):
   # TODO determine valid moves
   # TODO determine best move
@@ -34,7 +38,7 @@ if __name__ == "__main__":
       maxTurnTime = json_data['maxTurnTime']
       player = json_data['player']
       obj = boards.Board()
-      mask, current = obj.get_bit_board([[0,0,0,0,0,0,0],[0,0,0,2,0,0,0],[0,0,1,1,0,0,0],[0,0,2,1,0,0,0],[0,0,2,2,1,0,0],[0,0,2,1,1,2,0]])
+      mask, current = obj.get_bit_board(TEST_1)
       print(player, maxTurnTime, board)
       move = get_move(player, board)
       response = prepare_response(move)

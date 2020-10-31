@@ -20,8 +20,8 @@ class Board:
         brd = list(zip(*board)) #get cols
         print("brd: ", brd)
         for row in brd: #iterate through cols
-            for pos in row: #access each item in cols
-                if pos == 0:
+            for i, pos in enumerate(row): #access each item in cols
+                if  == 0:
                     mask += '0'
                     player += '0'
                 if pos == 1 or pos == 2:
