@@ -3,8 +3,8 @@ from copy import deepcopy
 class Board:
     HEIGHT: int = 6
     WIDTH: int = 7
-    MIN_SCORE = -(WIDTH * HEIGHT) // 2 + 3;
-    MAX_SCORE = (WIDTH * HEIGHT+1) // 2 - 3;
+    MIN_SCORE = -1 * (WIDTH * HEIGHT) // 2 + 3;
+    MAX_SCORE = (WIDTH * HEIGHT +1 ) // 2 - 3;
 
     def __init__(self, board, player_num):
         self.player_num = player_num
@@ -13,23 +13,21 @@ class Board:
         self.player_bitboard, self.mask_bitboard = self.get_bit_board_alt(board)
 
     def is_column_free(self, col: int) -> bool:
-        mask_int = self.mask_bitboard
-        top_mask = (1 << (self.HEIGHT - 1)) << col * (self.HEIGHT + 1)
-        return ((mask_int & top_mask) == 0)
+        top_mask = self.get_top_mask(col)
+        return ((self.mask_bitboard & top_mask) == 0)
 
     def get_key(self):
         return self.player_bitboard + self.mask_bitboard
 
     def get_top_mask(self, column: int) -> int:
-        top_mask = (1 << 5) << column * 7
-        #print(format(top_mask, 'b'))
+        top_mask = (1 << (self.HEIGHT - 1)) << column * (self.HEIGHT + 1)
         return top_mask
 
     def is_winning_move(self, col: int) -> bool:
         p = deepcopy(self.player_bitboard)
-        col_mask = (1 << self.HEIGHT-1) << col * (self.HEIGHT+1)
-        bottom_mask = 1 << (col * self.WIDTH)
-        p = p | (self.mask_bitboard + bottom_mask) & col_mask
+        col_mask = ((1 << self.HEIGHT)-1) << col * (self.HEIGHT + 1)
+        bottom_mask = 1 << (col * (self.HEIGHT + 1))
+        p |= (self.mask_bitboard + bottom_mask) & col_mask
         return (self.connect4_check(p))
 
     def connect4_check(self, player_mask) -> bool:
@@ -56,10 +54,12 @@ class Board:
         return False
 
     def play_column(self, col: int):
-        self.player_bitboard = self.player_bitboard ^ self.mask_bitboard
-        self.mask_bitboard = self.mask_bitboard | (self.mask_bitboard + (1 << (col * self.WIDTH)))
+        self.player_bitboard ^= self.mask_bitboard
+        self.mask_bitboard |= self.mask_bitboard + (1 << (col * (self.HEIGHT + 1)))
         self.num_moves_played += 1
     # def win_condition(self, ):
+
+    
 
     def get_bit_board_alt(self, board) -> str:
         player_bitboard = ''

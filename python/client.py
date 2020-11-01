@@ -13,11 +13,16 @@ from boards import *
 def get_move(player, board):
   # TODO determine valid moves
   # TODO determine best move
-  score = player.score(board, -math.inf, math.inf)
-  return board.last_col_played
+  if(board.num_moves_played < 6):
+    return player.column_ordering[board.num_moves_played]
+  else:
+    print("Using minimax now")
+    return player.iterate(board)
+    #return player.best_move
 
 def prepare_response(move):
-  response = '{}\n'.format(json.dumps(move))
+  movedict = {"column": move}
+  response = '{}\n'.format(json.dumps(movedict))
   print('sending {!r}'.format(response))
   return response.encode(encoding='UTF-8') #return response as bytes-like
 
@@ -54,6 +59,7 @@ if __name__ == "__main__":
                                              [0,0,2,1,1,2,0]], player) """
       print(player, maxTurnTime, board)
       move = get_move(player_obj, board_obj)
+      board_obj.play_column(move)
       response = prepare_response(move)
       sock.sendall(response)
   finally:
