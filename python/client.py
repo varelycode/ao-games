@@ -5,14 +5,16 @@ import json
 import socket
 import boards
 import moves
+import math
 from gameplay import *
+from boards import *
 
 
 def get_move(player, board):
   # TODO determine valid moves
   # TODO determine best move
-
-  return moves.get_best_move()
+  score = player.score(board, -math.inf, math.inf)
+  return board.last_col_played
 
 def prepare_response(move):
   response = '{}\n'.format(json.dumps(move))
@@ -24,6 +26,9 @@ if __name__ == "__main__":
   host = sys.argv[2] if (len(sys.argv) > 2 and sys.argv[2]) else socket.gethostname() # default hostname at gethostname or add optional name
 
   sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+  first_turn = True
+  board_obj = None
+  player_obj = Play()
   try:
     sock.connect((host, port))
     while True:
@@ -35,15 +40,20 @@ if __name__ == "__main__":
       board = json_data['board']
       maxTurnTime = json_data['maxTurnTime']
       player = json_data['player']
-      obj = boards.Board()
-      mask, current = obj.get_bit_board_alt([[0,0,0,0,0,0,0],
+      if first_turn:
+        board_obj = Board(board, player)
+        first_turn = False
+      else:
+        board_obj.player_bitboard, board_obj.mask_bitboard = board_obj.get_bit_board_alt(board)
+  
+      """ mask, current = board_obj.get_bit_board_alt([[0,0,0,0,0,0,0],
                                              [0,0,0,2,0,0,0],
                                              [0,0,1,1,0,0,0],
                                              [0,0,2,1,0,0,0],
                                              [0,0,2,2,1,0,0],
-                                             [0,0,2,1,1,2,0]], player)
+                                             [0,0,2,1,1,2,0]], player) """
       print(player, maxTurnTime, board)
-      move = get_move(player, board)
+      move = get_move(player_obj, board_obj)
       response = prepare_response(move)
       sock.sendall(response)
   finally:
