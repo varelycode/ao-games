@@ -7,6 +7,8 @@ import numpy as np
 TOTAL_SPACES = 7 * 6
 spaces_available = 42
 score = 0
+ROWS = 6
+COLS = 7
 
 def get_best_move(board, player_num):
     best_move = 0
@@ -57,9 +59,9 @@ def terminal_node(board, player_num) -> bool:
     opp = p.get_opp_num(player_num)
     b = boards.Board()
     is_full = b.is_full(board)
-    if check_wins(board, player_num):
+    if p.check_wins(board, player_num):
         return True
-    elif check_wins(board, opp):
+    elif p.check_wins(board, opp):
         return True
     elif is_full:
         return True
@@ -129,7 +131,7 @@ def score(board, player_num) -> bool:
     # horizontal
     count = 0
     h_max_count = 0
-    for i in range(ROW):
+    for i in range(ROWS):
         for j in range(COLS):
             if potential_win(board[i]): # make sure its possible to win before u keep track of count
                 if board[i][j] == player_num:
@@ -196,19 +198,19 @@ def min_max(board, depth, player_num, maximizing_player):
     if depth == 0:
         return score(board, player_num)
     if stop_node == True:
-        if check_wins(board, player_num): #player wins
+        if p.check_wins(board, player_num): #player wins
             return -math.inf
-        elif check_wins(board, opp): #opponent wins
+        elif p.check_wins(board, opp): #opponent wins
             return math.inf
         else: #draw
             return 0
     if maximizing_player:
         score = -math.inf
         for move in valid_moves(board):
-            score = max(score, min_max(child_board(board, player_num, move), depth + 1, False))
+            score = max(score, min_max(child_board(board, player_num, move), player_num, depth + 1, False))
         return score
     elif maximizing_player == False: #if minimizing player
         score = math.inf
         for move in valid_moves(board):
-            score = min(score, minimax(child_board(board, opp, move), depth - 1, True))
+            score = min(score, min_max(child_board(board, opp, move), opp, depth - 1, True))
         return score

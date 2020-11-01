@@ -4,6 +4,8 @@ from copy import deepcopy
 
 HEIGHT = 6
 WIDTH = 7
+ROWS = 6
+COLS = 7
 
 class Play:
     mask = '' # Bit mask containing positions of non-empty cells
@@ -27,24 +29,24 @@ class Play:
     #def __mtdf():
     def check_wins(self, board, player_num) -> bool:
         #horizontal
-        for i in range(ROW - 3):
-            for j in range(COLS):
+        for i in range(COLS - 3):
+            for j in range(ROWS):
                 if board[j][i] == player_num and board[j][i+1] == player_num and board[j][i+2] == player_num and board[j][i+3] == player_num:
                     return True
         #vertical
-        for i in range(COLS - 3):
-            for j in range(ROWS):
-                if board[i][j] == player_num and board[i][j+1] == player_num and board[i][j+2] == player_num and board[i][j+3] == player_num:
+        for i in range(COLS):
+            for j in range(ROWS - 3):
+                if board[j][i] == player_num and board[j + 1][i] == player_num and board[j + 1][i] == player_num and board[j + 1][i] == player_num:
                     return True
         # ascending diagnols
         for i in range(COLS - 3):
             for j in range(ROWS - 3):
-                if board[j][i] == player_num and board[j + 1][i] == player_num and board[j+2][i] == player_num and board[j+3][i] == player_num:
+                if board[j][i] == player_num and board[j + 1][i + 1] == player_num and board[j + 2][i + 1] == player_num and board[j + 3][i + 1] == player_num:
                     return True
         # descending diagnols
         for i in range(COLS - 3):
             for j in range(ROWS - 3):
-                if board[j][i] == player_num and board[j - 1][i + 1] == player_num and board[j - 2][i + 2] == player_num and board[j + 3][i + 3] == player_num:
+                if board[j][i] == player_num and board[j - 1][i + 1] == player_num and board[j - 2][i + 2] == player_num and board[j - 3][i + 3] == player_num:
                     return True
         return False
 
@@ -52,7 +54,7 @@ class Play:
         opp = set()
         opp.add(2)
         opp.add(1)
-        opp.remove(player_num) # remove the number that reps the player from set
+        opp.discard(player_num) # remove the number that reps the player from set
         opposite = opp.pop()
         return opposite
 
