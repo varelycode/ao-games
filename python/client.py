@@ -13,10 +13,7 @@ TEST_1 = [[0,0,0,0,0,0,0], [0,0,0,2,0,0,0], [0,0,1,1,0,0,0], [0,0,2,1,0,0,0], [0
 
 
 def get_move(player, board):
-  # TODO determine valid moves
-  # TODO determine best move
-
-  return moves.get_best_move()
+  return moves.get_best_move(board, player)
 
 def prepare_response(move):
   response = '{}\n'.format(json.dumps(move))
@@ -40,7 +37,7 @@ if __name__ == "__main__":
       maxTurnTime = json_data['maxTurnTime']
       player = json_data['player']
       obj = boards.Board()
-      mask, current = obj.get_bit_board_alt(TEST_1)
+      # mask, current = obj.get_bit_board(TEST_1, player)
       print(player, maxTurnTime, board)
       move = get_move(player, board)
       response = prepare_response(move)
