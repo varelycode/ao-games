@@ -112,12 +112,12 @@ class Board:
         m1 |= m2 & (player_mask << (self.HEIGHT + 1));
         m1 |= m2 & (player_mask >> 3 * (self.HEIGHT + 1))
         # Diag case 1
-        m2 = (player_mask << self.HEIGHT) & (player_mask << 2 * self.HEIGHT)
-        m1 |= m2 & (player_mask << 3 * self.HEIGHT)
+        m2 = (player_mask << self.HEIGHT) & (player_mask << (2 * self.HEIGHT))
+        m1 |= m2 & (player_mask << (3 * self.HEIGHT))
         m1 |= m2 & (player_mask >> self.HEIGHT)
-        m2 = (player_mask >> self.HEIGHT) & (player_mask >> 2 * self.HEIGHT)
+        m2 = (player_mask >> self.HEIGHT) & (player_mask >> (2 * self.HEIGHT))
         m1 |= m2 & (player_mask << self.HEIGHT)
-        m1 |= m2 & (player_mask >> 3 * self.HEIGHT)
+        m1 |= m2 & (player_mask >> (3 * self.HEIGHT))
         # Diag case 2
         m2 = (player_mask << (self.HEIGHT + 2)) & (player_mask << 2 * (self.HEIGHT + 2))
         m1 |= m2 & (player_mask << 3 * (self.HEIGHT + 2))
@@ -125,10 +125,8 @@ class Board:
         m2 = (player_mask >> (self.HEIGHT + 2)) & (player_mask >> 2 * (self.HEIGHT + 2))
         m1 |= m2 & (player_mask << (self.HEIGHT + 2))
         m1 |= m2 & (player_mask >> 3*(self.HEIGHT + 2))
-
-        m3 = self.get_bottom_row_mask(self.WIDTH, self.HEIGHT) * ((1 << self.HEIGHT) - 1)
     
-        return m1 & (m3 ^ filled_positions_mask)
+        return m1 & (self.board_mask ^ filled_positions_mask)
 
     def get_bit_board_alt(self, board) -> str:
         player_bitboard = ''

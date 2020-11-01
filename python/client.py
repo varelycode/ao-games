@@ -18,7 +18,6 @@ def get_move(player, board):
   else:
     print("Using minimax now")
     return player.iterate(board)
-    #return player.best_move
 
 def prepare_response(move):
   movedict = {"column": move}

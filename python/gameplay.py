@@ -7,7 +7,6 @@ class Play:
     HEIGHT: int = 6
     WIDTH: int = 7
     move_table = {}
-    #mask = '' # Bit mask containing positions of non-empty cells
     num_moves_played = 0 # Number of moves played since beginning of game
     column_ordering = [3, 2, 4, 1, 5, 0, 6] # Order to look at columns in, since columns closer to the center are involved in more 4-alignments
 
@@ -70,12 +69,8 @@ class Play:
             if move != 0:
                 move_getter.add_to_best_moves(move, board.get_num_winning_spots(move), col)
 
-        next_move = None
         while True:
             next_move, next_move_col = move_getter.get_next_best_move()
-            #if next_move <= 6:
-                #print("Got next best move: ", str(next_move))
-            #print("Best moves list size: ", str(move_getter.move_list_size))
             if next_move == 0:
                 break   
             temp_board = deepcopy(board)
