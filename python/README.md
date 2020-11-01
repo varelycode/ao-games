@@ -12,3 +12,5 @@ To run the test_get_move_returns_a_valid_move test case in the TestGetMove class
 ## Recommended Software
 * Python 3.7.0
 * [Pyenv](https://github.com/pyenv/pyenv)
+
+##Function does not consistently beat random player. We think this is due to our incorrect scoring function

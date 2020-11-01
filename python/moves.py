@@ -11,27 +11,39 @@ ROWS = 6
 COLS = 7
 
 def get_best_move(board, player_num):
-    best_move = 0
+    move = 3
     best_score = -math.inf
+    valid_cols = check_top_row(board[0])
+    while move not in valid_cols:
+        move += 1
+        if move == 6:
+            move = 1
 
     for i in range((len(board) - 1)):  #cols
-        row = find_row_pos(board, i) # find next avail. position given a col
-        if row >= 0:
-            if board[row][i] == 0:
-                new_board = deepcopy(board)
-                new_board[row][i] = player_num
-                score = min_max(new_board, 5, player_num, False)
-                if score > best_score:
-                    best_score = score
-                    best_move = i
+        valid_cols = check_top_row(board[0])
+        if i in valid_cols: # make sure we can add more to col
+            row = find_row_pos(board, i) # find next avail. position given a col
+            if row == -1:
+                continue
+            elif row >= 0:
+                if board[row][i] == 0:
+                    new_board = deepcopy(board)
+                    new_board[row][i] = player_num
+                    score = min_max(new_board, 5, player_num, False)
+                    if score > best_score:
+                        best_score = score
+                        move = i
+        else: # not a valid col
+            continue
 
-    return {'column': best_move}
+    return {'column': move}
 
 def free_row(row) -> bool:
     for space in row:
         if space != 1 or space != 2:
             return True
     return False
+
 
 def find_row_pos(board, col) -> int:
     end = 5
@@ -84,6 +96,7 @@ def column(board, i):
     return [row[i] for row in board]
 
 def diag_check(board, r, c) -> []:
+    # SRC for numpy diagnol function in moves.py: stackoverflow.com
     l = np.array(board)
     major = np.diagonal(board, offset=(c - r))
 
@@ -122,12 +135,8 @@ def diag_count(major: [], minor: [], player_num) -> int:
     return major_count, minor_count
 
 
+def score_counter(board, player_num) -> int:
 
-
-def score(board, player_num) -> bool:
-    """
-    This function takes the score of a board. This is called at depth = 0
-    """
     # horizontal
     count = 0
     h_max_count = 0
@@ -166,6 +175,17 @@ def score(board, player_num) -> bool:
             if minor_count > max_minor:
                 max_minor   = minor_count
             end -= 1
+
+    return h_max_count, v_max_count, max_minor, max_major
+
+def score(board, player_num) -> bool:
+    """
+    This function takes the score of a board. This is called at depth = 0
+    """
+    p = gameplay.Play()
+    opp = p.get_opp_num(player_num)
+    #track player_num score
+    h_max_count, v_max_count, max_minor, max_major = score_counter(board, player_num)
     if h_max_count == 4:
         score += 1000
     if v_max_count == 4:
@@ -176,22 +196,12 @@ def score(board, player_num) -> bool:
         score += 1000
 
     if h_max_count == 3:
-        score += 1000
+        score += 10
     if v_max_count == 3:
-        score += 1000
+        score += 10
     if max_minor == 3:
-        score += 1000
+        score += 10
     if max_major == 3:
-        score += 1000
-
-
-    if h_max_count == 2:
-        score += 10
-    if v_max_count == 2:
-        score += 10
-    if max_minor == 2:
-        score += 10
-    if max_major == 2:
         score += 10
     return score
 
@@ -227,18 +237,18 @@ def min_max(board, depth, player_num, maximizing_player):
         return score(board, player_num)
     if stop_node == True:
         if p.check_wins(board, player_num): #player wins
-            return -math.inf
-        elif p.check_wins(board, opp): #opponent wins
             return math.inf
+        elif p.check_wins(board, opp): #opponent wins
+            return -math.inf
         else: #draw
             return 0
     if maximizing_player:
         score = -math.inf
         for move in valid_moves(board):
-            score = max(score, min_max(child_board(board, player_num, move), player_num, depth + 1, False))
-        return score
-    elif maximizing_player == False: #if minimizing player
+            best_score = max(score, min_max(child_board(board, player_num, move), player_num, depth - 1, False))
+        return best_score
+    else: #if minimizing player
         score = math.inf
         for move in valid_moves(board):
-            score = min(score, min_max(child_board(board, opp, move), opp, depth - 1, True))
-        return score
+            best_score = min(score, min_max(child_board(board, opp, move), opp, depth - 1, True))
+        return best_score
