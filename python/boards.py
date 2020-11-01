@@ -26,7 +26,7 @@ class Board:
         opponent_wins = self.get_opponent_winning_pos()
         forced = possible_moves & opponent_wins
         if forced:
-            if forced and (forced - 1):
+            if (forced & (forced - 1)):
                 return 0
             else:
                 possible_moves = forced
@@ -53,11 +53,6 @@ class Board:
         possible_moves = self.get_possible_moves_mask()
         col_mask = self.get_column_mask(col)
         return win_positions & possible_moves & col_mask
-        """ m2 = deepcopy(self.player_bitboard)
-        col_mask = ((1 << self.HEIGHT)-1) << col * (self.HEIGHT + 1)
-        bottom_mask = 1 << (col * (self.HEIGHT + 1))
-        m2 |= (self.mask_bitboard + bottom_mask) & col_mask
-        return (self.connect4_check(m2)) """
 
     def connect4_check(self, player_mask) -> bool:
         # 4 across
@@ -177,11 +172,6 @@ class Board:
                 
                 mask += '0'
                 player += '0'
-        """ print("mask:")
-        for i in range(6, -1, -1):
-            for j in range(7):
-                print(mask[i + (j * 7)], end='')
-            print('\n', end='') """
         print('\n', end='')
         print("player: ", player)
         print(self.is_column_free(mask, 0))
@@ -190,9 +180,4 @@ class Board:
         print("In class board")
 
         return mask, player
-
-    # def get_opponent(self, mask, current) -> str:
-    #
-    #     return mask xor
-
 

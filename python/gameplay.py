@@ -13,22 +13,6 @@ class Play:
 
     def __init__(self):
         self.best_move = 3
-        self.best_moves_list = []
-        self.best_moves_list_size = 0
-
-    def add_to_best_moves(self, move, score):
-        self.best_moves_list.append((move, score))
-        self.best_moves_list_size += 1
-        if self.best_moves_list_size > 1:
-            self.best_moves_list.sort(key = lambda x: x[1], reverse=True)
-
-    def get_next_best_move(self):
-        if(self.best_moves_list_size > 0):
-            best_move_tuple = self.best_moves_list.pop(0)
-            self.best_moves_list_size -= 1
-            return best_move_tuple[0]
-        else:
-            return 0
 
     @functools.lru_cache
     def iterate(self, board) -> int:
@@ -55,8 +39,6 @@ class Play:
 
     @functools.lru_cache
     def score(self, board, a, b) -> int:
-        # Include function to get valid plays 
-        # Include check here for if depth is 0 or if it's a game-terminating depth
         next_move = board.get_non_losing_moves()
         if next_move == 0: # No non-losing move means opponent wins next turn
             return -1 * (self.WIDTH * self.HEIGHT - board.num_moves_played) // 2
@@ -80,21 +62,49 @@ class Play:
             if a >= b:
                 return b
         
-        for i in range(self.WIDTH, -1, -1):
-            move = next_move & board.get_column_mask(i)
-            if move:
-                self.add_to_best_moves(move, board.get_num_winning_spots(move))
+        move_getter = MoveGetter()
 
-        next_move = -1
-        while next_move != 0:
+        for i in range(self.WIDTH - 1, -1, -1):
+            col = self.column_ordering[i]
+            move = next_move & board.get_column_mask(col)
+            if move != 0:
+                move_getter.add_to_best_moves(move, board.get_num_winning_spots(move), col)
+
+        next_move = None
+        while True:
+            next_move, next_move_col = move_getter.get_next_best_move()
+            #if next_move <= 6:
+                #print("Got next best move: ", str(next_move))
+            #print("Best moves list size: ", str(move_getter.move_list_size))
+            if next_move == 0:
+                break   
             temp_board = deepcopy(board)
             temp_board.play(next_move)
             temp_score = -1 * self.score(temp_board, -1 * b, -1 * a)
             if temp_score >= b:
+                self.best_move = next_move_col
                 return temp_score
             if temp_score > a:
                 a = temp_score
-            next_move = self.get_next_best_move()
-            print("Got next best move: ", str(next_move))
+                self.best_move = next_move_col
         self.move_table[board.get_key()] = a - board.MIN_SCORE + 1
         return a
+
+class MoveGetter:
+    def __init__(self):
+        self.move_list = []
+        self.move_list_size = 0
+
+    def add_to_best_moves(self, move, score, col):
+        self.move_list.append((move, score, col))
+        self.move_list_size += 1
+        if self.move_list_size > 1:
+            self.move_list.sort(key = lambda x: x[1], reverse=True)
+
+    def get_next_best_move(self):
+        if(self.move_list_size > 0):
+            best_move_tuple = self.move_list.pop(0)
+            self.move_list_size -= 1
+            return (best_move_tuple[0], best_move_tuple[2])
+        else:
+            return (0, 0)

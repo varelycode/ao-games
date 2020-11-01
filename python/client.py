@@ -13,7 +13,7 @@ from boards import *
 def get_move(player, board):
   # TODO determine valid moves
   # TODO determine best move
-  if(board.num_moves_played < 4):
+  if(board.num_moves_played < 0):
     return player.column_ordering[board.num_moves_played]
   else:
     print("Using minimax now")
