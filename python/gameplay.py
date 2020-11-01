@@ -1,5 +1,4 @@
 import math
-from functools import lru_cache
 import boards
 from copy import deepcopy
 
