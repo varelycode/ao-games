@@ -1,20 +1,18 @@
 import math
-import functools
+from functools import lru_cache
 import boards
 from copy import deepcopy
 
 class Play:
     HEIGHT: int = 6
     WIDTH: int = 7
-    move_table = {}
-    num_moves_played = 0 # Number of moves played since beginning of game
+    move_table = {} # Transposition table for storing scores for positions that have been seen before
     column_ordering = [3, 2, 4, 1, 5, 0, 6] # Order to look at columns in, since columns closer to the center are involved in more 4-alignments
 
     def __init__(self):
-        self.best_move = 3
+        self.best_move = 3 # Class member to hold the column corresponding to best move
 
-    @functools.lru_cache
-    def iterate(self, board) -> int:
+    def iterate(self, board) -> int: # Iterative deepening
         minimum = -1 * (self.WIDTH * self.HEIGHT - board.num_moves_played) // 2
         maximum = (self.WIDTH * self.HEIGHT + 1 - board.num_moves_played) // 2
         it = 0
@@ -36,7 +34,6 @@ class Play:
         
         return self.best_move
 
-    @functools.lru_cache
     def score(self, board, a, b) -> int:
         next_move = board.get_non_losing_moves()
         if next_move == 0: # No non-losing move means opponent wins next turn
@@ -81,10 +78,10 @@ class Play:
                 return temp_score
             if temp_score > a:
                 a = temp_score
-                self.best_move = next_move_col
-        self.move_table[board.get_key()] = a - board.MIN_SCORE + 1
+        self.move_table[board.get_key()] = a - board.MIN_SCORE + 1 # Add this board position to the transposition table
         return a
 
+# Class to maintain a sorted list of best moves
 class MoveGetter:
     def __init__(self):
         self.move_list = []
@@ -93,7 +90,7 @@ class MoveGetter:
     def add_to_best_moves(self, move, score, col):
         self.move_list.append((move, score, col))
         self.move_list_size += 1
-        if self.move_list_size > 1:
+        if self.move_list_size > 1: # Sort list by highest to lowest score
             self.move_list.sort(key = lambda x: x[1], reverse=True)
 
     def get_next_best_move(self):

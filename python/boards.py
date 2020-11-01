@@ -11,14 +11,16 @@ class Board:
         self.bottom_mask = self.get_bottom_row_mask(self.WIDTH, self.HEIGHT)
         self.board_mask = self.bottom_mask * ((1 << self.HEIGHT) - 1)
         self.num_moves_played = 0
-        self.last_col_played = -1
-        self.player_bitboard, self.mask_bitboard = self.get_bit_board_alt(board)
+
+        # player_bitboard is the bitboard of the player's pieces
+        # mask bitboard is the bitboard of all non-empty spaces
+        self.player_bitboard, self.mask_bitboard = self.get_bit_board(board)
 
     def is_column_free(self, col: int) -> bool:
         top_mask = self.get_top_mask(col)
         return ((self.mask_bitboard & top_mask) == 0)
 
-    def get_key(self):
+    def get_key(self): # Get unique transposition table key for this board position
         return self.player_bitboard + self.mask_bitboard
 
     def get_non_losing_moves(self) -> int:
@@ -128,7 +130,7 @@ class Board:
     
         return m1 & (self.board_mask ^ filled_positions_mask)
 
-    def get_bit_board_alt(self, board) -> str:
+    def get_bit_board(self, board) -> str:
         player_bitboard = ''
         mask_bitboard = ''
         for col in range(6, -1, -1):
@@ -146,36 +148,4 @@ class Board:
                     else:
                         player_bitboard += '0'
         return int(player_bitboard, 2), int(mask_bitboard, 2)
-
-    def get_bit_board(self, board: [[]], player_num: int) -> str:
-        #Input board: [[]] - Takes, player and board list contains current state of board
-        #Output mask: '', player: ''Returns Mask and position of current player
-        player = ''
-        mask = ''
-        brd = list(zip(*board)) #get cols
-        print("brd: ", brd)
-        for row in brd: #iterate through cols
-            print(row)
-            for pos in row: #access each item in cols
-                if pos == 0:
-                    mask += '0'
-                    player += '0'
-                else:
-                    mask += '1'
-
-                if pos == player_num:
-                    player += '1'
-                else:
-                    player += '0'
-                
-                mask += '0'
-                player += '0'
-        print('\n', end='')
-        print("player: ", player)
-        print(self.is_column_free(mask, 0))
-
-        print("row", row)
-        print("In class board")
-
-        return mask, player
 

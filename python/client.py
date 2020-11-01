@@ -11,12 +11,11 @@ from boards import *
 
 
 def get_move(player, board):
-  # TODO determine valid moves
-  # TODO determine best move
-  if(board.num_moves_played < 0):
+  # Use opening book for first few moves
+  if(board.num_moves_played < 6):
     return player.column_ordering[board.num_moves_played]
+  # Start using minimax after opening moves
   else:
-    print("Using minimax now")
     return player.iterate(board)
 
 def prepare_response(move):
@@ -48,14 +47,7 @@ if __name__ == "__main__":
         board_obj = Board(board, player)
         first_turn = False
       else:
-        board_obj.player_bitboard, board_obj.mask_bitboard = board_obj.get_bit_board_alt(board)
-  
-      """ mask, current = board_obj.get_bit_board_alt([[0,0,0,0,0,0,0],
-                                             [0,0,0,2,0,0,0],
-                                             [0,0,1,1,0,0,0],
-                                             [0,0,2,1,0,0,0],
-                                             [0,0,2,2,1,0,0],
-                                             [0,0,2,1,1,2,0]], player) """
+        board_obj.player_bitboard, board_obj.mask_bitboard = board_obj.get_bit_board(board)
       print(player, maxTurnTime, board)
       move = get_move(player_obj, board_obj)
       board_obj.play_column(move)
