@@ -20,7 +20,7 @@ def get_best_move(board, player_num):
             if board[row][i] == 0:
                 new_board = deepcopy(board)
                 new_board[row][i] = player_num
-                score = min_max(new_board, 5, player_num, True)
+                score = min_max(new_board, 5, player_num, False)
                 if score > best_score:
                     best_score = score
                     best_move = i
@@ -131,6 +131,7 @@ def score(board, player_num) -> bool:
     # horizontal
     count = 0
     h_max_count = 0
+    score = 0
     for i in range(ROWS):
         for j in range(COLS):
             if potential_win(board[i]): # make sure its possible to win before u keep track of count
@@ -165,7 +166,34 @@ def score(board, player_num) -> bool:
             if minor_count > max_minor:
                 max_minor   = minor_count
             end -= 1
+    if h_max_count == 4:
+        score += 1000
+    if v_max_count == 4:
+        score += 1000
+    if max_minor == 4:
+        score += 1000
+    if max_major == 4:
+        score += 1000
 
+    if h_max_count == 3:
+        score += 1000
+    if v_max_count == 3:
+        score += 1000
+    if max_minor == 3:
+        score += 1000
+    if max_major == 3:
+        score += 1000
+
+
+    if h_max_count == 2:
+        score += 10
+    if v_max_count == 2:
+        score += 10
+    if max_minor == 2:
+        score += 10
+    if max_major == 2:
+        score += 10
+    return score
 
 
 
