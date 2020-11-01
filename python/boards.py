@@ -8,6 +8,8 @@ class Board:
 
     def __init__(self, board, player_num):
         self.player_num = player_num
+        self.bottom_mask = self.get_bottom_row_mask(self.WIDTH, self.HEIGHT)
+        self.board_mask = self.bottom_mask * ((1 << self.HEIGHT) - 1)
         self.num_moves_played = 0
         self.last_col_played = -1
         self.player_bitboard, self.mask_bitboard = self.get_bit_board_alt(board)
@@ -19,16 +21,43 @@ class Board:
     def get_key(self):
         return self.player_bitboard + self.mask_bitboard
 
+    def get_non_losing_moves(self) -> int:
+        possible_moves = self.get_possible_moves_mask()
+        opponent_wins = self.get_opponent_winning_pos()
+        forced = possible_moves & opponent_wins
+        if forced:
+            if forced and (forced - 1):
+                return 0
+            else:
+                possible_moves = forced
+        return possible_moves & ~(opponent_wins >> 1)
+    
+    def get_possible_moves_mask(self) -> int:
+        return (self.mask_bitboard + self.bottom_mask) & self.board_mask
+    
+    def get_player_winning_pos(self) -> int:
+        return self.get_winning_moves_mask(self.player_bitboard, self.mask_bitboard)
+
+    def get_opponent_winning_pos(self) -> int:
+        return self.get_winning_moves_mask(self.player_bitboard ^ self.mask_bitboard, self.mask_bitboard)
+
+    def get_column_mask(self, col: int) -> int:
+        return ((1 << self.HEIGHT) - 1) << (col * (self.HEIGHT + 1))
+
     def get_top_mask(self, column: int) -> int:
         top_mask = (1 << (self.HEIGHT - 1)) << column * (self.HEIGHT + 1)
         return top_mask
 
     def is_winning_move(self, col: int) -> bool:
-        p = deepcopy(self.player_bitboard)
+        win_positions = self.get_player_winning_pos()
+        possible_moves = self.get_possible_moves_mask()
+        col_mask = self.get_column_mask(col)
+        return win_positions & possible_moves & col_mask
+        """ m2 = deepcopy(self.player_bitboard)
         col_mask = ((1 << self.HEIGHT)-1) << col * (self.HEIGHT + 1)
         bottom_mask = 1 << (col * (self.HEIGHT + 1))
-        p |= (self.mask_bitboard + bottom_mask) & col_mask
-        return (self.connect4_check(p))
+        m2 |= (self.mask_bitboard + bottom_mask) & col_mask
+        return (self.connect4_check(m2)) """
 
     def connect4_check(self, player_mask) -> bool:
         # 4 across
@@ -53,13 +82,58 @@ class Board:
         
         return False
 
-    def play_column(self, col: int):
+    def play(self, move: int):
         self.player_bitboard ^= self.mask_bitboard
-        self.mask_bitboard |= self.mask_bitboard + (1 << (col * (self.HEIGHT + 1)))
+        self.mask_bitboard |= move
         self.num_moves_played += 1
-    # def win_condition(self, ):
 
+    def play_column(self, col: int):
+        self.play((self.mask_bitboard + self.get_bottom_mask_w_col(col)) & self.get_column_mask(col))
     
+    # Get mask that's just all 1s in the bottom row
+    def get_bottom_row_mask(self, w: int, h: int) -> int:
+        if w == 0:
+            return 0
+        else:
+            return self.get_bottom_row_mask(w - 1, h) | 1 << (w - 1) * (h + 1)
+
+    def get_bottom_mask_w_col(self, col: int) -> int:
+        return (1 << (col * (self.HEIGHT + 1)))
+
+    # Get the number of winning spots from the mask of winning spots
+    def get_num_winning_spots(self, move: int) -> int:
+        temp_bitstring = self.get_winning_moves_mask(self.player_bitboard | move, self.mask_bitboard)
+        return bin(temp_bitstring).count('1') # Count set bits
+
+    # Use bit-shift ugliness to get a string corresponding to all the free cells making a winning move
+    def get_winning_moves_mask(self, player_mask: int, filled_positions_mask: int) -> int:
+        # Vertical winning moves
+        m1 = (player_mask << 1) & (player_mask << 2) & (player_mask << 3)
+        # Horizontal
+        m2 = (player_mask << (self.HEIGHT + 1)) & (player_mask << 2 * (self.HEIGHT + 1))
+        m1 |= m2 & (player_mask << 3 * (self.HEIGHT + 1))
+        m1 |= m2 & (player_mask >> (self.HEIGHT + 1))
+        m2 = (player_mask >> (self.HEIGHT + 1)) & (player_mask >> 2*(self.HEIGHT + 1))
+        m1 |= m2 & (player_mask << (self.HEIGHT + 1));
+        m1 |= m2 & (player_mask >> 3 * (self.HEIGHT + 1))
+        # Diag case 1
+        m2 = (player_mask << self.HEIGHT) & (player_mask << 2 * self.HEIGHT)
+        m1 |= m2 & (player_mask << 3 * self.HEIGHT)
+        m1 |= m2 & (player_mask >> self.HEIGHT)
+        m2 = (player_mask >> self.HEIGHT) & (player_mask >> 2 * self.HEIGHT)
+        m1 |= m2 & (player_mask << self.HEIGHT)
+        m1 |= m2 & (player_mask >> 3 * self.HEIGHT)
+        # Diag case 2
+        m2 = (player_mask << (self.HEIGHT + 2)) & (player_mask << 2 * (self.HEIGHT + 2))
+        m1 |= m2 & (player_mask << 3 * (self.HEIGHT + 2))
+        m1 |= m2 & (player_mask >> (self.HEIGHT + 2))
+        m2 = (player_mask >> (self.HEIGHT + 2)) & (player_mask >> 2 * (self.HEIGHT + 2))
+        m1 |= m2 & (player_mask << (self.HEIGHT + 2))
+        m1 |= m2 & (player_mask >> 3*(self.HEIGHT + 2))
+
+        m3 = self.get_bottom_row_mask(self.WIDTH, self.HEIGHT) * ((1 << self.HEIGHT) - 1)
+    
+        return m1 & (m3 ^ filled_positions_mask)
 
     def get_bit_board_alt(self, board) -> str:
         player_bitboard = ''
